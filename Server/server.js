@@ -2,8 +2,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import fileUpload from "express-fileupload";
-import connectDatabase from "./config/MongoDB.js";
-import ImportData from "./DataImport.js";
+import connectDatabase from "./config/MongoDb.js";
+// import ImportData from "./DataImport.js";
 import { errorHandler, notFound } from "./Middleware/Errors.js";
 import categoryRouter from "./Routes/CategoryRoutes.js";
 import orderRouter from "./Routes/OrderRoutes.js";
@@ -23,7 +23,7 @@ app.use(
 );
 
 // API
-app.use("/api/import", ImportData);
+// app.use("/api/import", ImportData);
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);

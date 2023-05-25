@@ -4,25 +4,72 @@ import users from "./data/users.js";
 import Product from "./Models/ProductModel.js";
 import User from "./Models/UserModel.js";
 import asyncHandler from "express-async-handler";
+import dotenv from 'dotenv';
+// import { connect } from "mongoose";
+import connectDatabse from "./config/MongoDb.js";
 
-const ImportData = express.Router();
+dotenv.config();
+connectDatabse();
 
-ImportData.post(
-    "/user",
-    asyncHandler(async (req, res) => {
-        await User.remove({});
-        const importUser = await User.insertMany(users);
-        res.send({ importUser });
-    })
-);
+const ImportData = async () => {
+    try {
+        await User.deleteMany();
+        await Product.deleteMany();
 
-ImportData.post(
-    "/products",
-    asyncHandler(async (req, res) => {
-        await Product.remove({});
-        const importProducts = await Product.insertMany(products);
-        res.send({ importProducts });
-    })
-);
+        const createUser = await User.insertMany(users);
 
-export default ImportData;
+        const adminUser = createUser[0]._id
+
+        const sampleProduct = products.map(product => {
+            return {
+                ...product,
+                user: adminUser
+            }
+        })
+        await Product.insertMany(sampleProduct);
+
+        console.log('Data Imported');
+    } catch (error) {
+        console.log(`${error}`)
+        process.exit(1)
+    }
+}
+
+const destroyData = async () => {
+    try {
+        await Product.deleteMany();
+        await User.deleteMany();
+        console.log('Data destroyed!')
+    } catch (error) {
+        console.log(`${error}`)
+        process.exit(1)
+    }
+}
+
+// const ImportData = express.Router();
+
+// ImportData.post(
+//     "/user",
+//     asyncHandler(async (req, res) => {
+//         await User.remove({});
+//         const importUser = await User.insertMany(users);
+//         res.send({ importUser });
+//     })
+// );
+
+// ImportData.post(
+//     "/products",
+//     asyncHandler(async (req, res) => {
+//         await Product.remove({});
+//         const importProducts = await Product.insertMany(products);
+//         res.send({ importProducts });
+//     })
+// );
+
+if (process.argv[2] === '-d') {
+    destroyData()
+} else {
+    ImportData()
+}
+
+export default ImportData
